@@ -1,0 +1,5 @@
+<%= form_for @conn, Routes.session_path(@conn, :create), [id: "session-create"], fn f -> %>
+  <%= label f, :name%>
+  <%= text_input f, :name %>
+  <%= submit "Login" %>
+<% end %>

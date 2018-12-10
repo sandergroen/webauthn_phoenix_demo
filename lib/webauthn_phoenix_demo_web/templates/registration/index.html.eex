@@ -1,0 +1,7 @@
+<%= form_for @conn, Routes.registration_path(@conn, :create), [id: "registration-create"], fn f -> %>
+  <%= label f, :name%>
+  <%= text_input f, :name %>
+  <%= label f, :credential_name%>
+  <%= text_input f, :credential_name %>
+  <%= submit "Register" %>
+<% end %>
