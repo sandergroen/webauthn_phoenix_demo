@@ -22,10 +22,9 @@ defmodule WebauthnPhoenixDemo.Accounts do
   end
 
   def register_user(name, credential \\ %{}) do
-    Repo.insert(%User{
-      name: name,
-      credentials: [Credential.changeset(%Credential{}, credential)]
-    })
+    user = %User{}
+      |> User.registration_changeset(%{name: name, credentials: %{0 => credential}})
+      |> Repo.insert!
   end
 
   @doc """

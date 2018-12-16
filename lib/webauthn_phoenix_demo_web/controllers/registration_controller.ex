@@ -24,34 +24,32 @@ defmodule WebauthnPhoenixDemoWeb.RegistrationController do
 
     challenge = get_session(conn, :challenge)
 
-    result =
-      WebAuthnEx.AuthAttestationResponse.valid?(
-        challenge,
-        WebauthnPhoenixDemoWeb.Endpoint.url(),
-        nil,
-        attestation_object,
-        client_json
-      )
+    result = WebAuthnEx.AuthAttestationResponse.new(
+      challenge,
+      WebauthnPhoenixDemoWeb.Endpoint.url(),
+      attestation_object,
+      client_json
+    )
 
-    {:ok, att_resp} = WebAuthnEx.AuthAttestationResponse.new(attestation_object)
+    conn = case result do
+        {:ok, att_resp} ->
+          {{:ECPoint, public_key}, {:namedCurve, :prime256v1}} = att_resp.credential.public_key
+          credential = %{
+            "credential_name" => credential_name,
+            "external_id" => Base.encode64(att_resp.credential.id),
+            "public_key" => Base.encode64(public_key)
+          }
+          user = WebauthnPhoenixDemo.Accounts.register_user(name, credential)
 
-    if result do
-      {{:ECPoint, public_key}, {:namedCurve, :prime256v1}} = att_resp.credential.public_key
+          conn
+            |> assign(:current_user, user)
+            |> put_session(:user_id, user.id)
+            |> configure_session(renew: true)
+        {:error, reason} ->
+          conn
+            |> put_status(:forbidden)
+      end
 
-      credential = %{
-        "credential_name" => credential_name,
-        "external_id" => Base.encode64(att_resp.credential.id),
-        "public_key" => Base.encode64(public_key)
-      }
-
-      {:ok, user} = WebauthnPhoenixDemo.Accounts.register_user(name, credential)
-
-      conn
-      |> assign(:current_user, user)
-      |> put_session(:user_id, user.id)
-      |> configure_session(renew: true)
-    end
-
-    render(conn, data: Jason.encode!(%{data: result}))
+    render(conn, data: Jason.encode!(%{}))
   end
 end
