@@ -36,42 +36,37 @@ defmodule WebauthnPhoenixDemoWeb.SessionController do
     challenge = get_session(conn, :challenge)
     user = WebauthnPhoenixDemo.Accounts.get_user_by_name(username)
 
-    {:ok, auth_response} =
-      WebAuthnEx.AuthAssertionResponse.new(
-        id |> Base.decode64!(),
-        authenticator_data,
-        signature
-      )
-
     allowed_credentials =
       Enum.map(user.credentials, fn cred ->
         %{id: Base.decode64!(cred.external_id), public_key: Base.decode64!(cred.public_key)}
       end)
 
     result =
-      WebAuthnEx.AuthAssertionResponse.valid?(
+      WebAuthnEx.AuthAssertionResponse.new(
+        id |> Base.decode64!(),
+        authenticator_data,
+        signature,
         challenge,
         WebauthnPhoenixDemoWeb.Endpoint.url(),
         allowed_credentials,
         nil,
-        client_data_json,
-        auth_response
+        client_data_json
       )
 
     conn =
       case result do
-        false ->
-          conn |> put_status(403)
-
-        true ->
+        {:ok, _} ->
           conn
           |> assign(:current_user, user)
           |> put_session(:user_id, user.id)
           |> configure_session(renew: true)
           |> put_status(:ok)
+
+        {:error, reason} ->
+          conn |> put_status(403)
       end
 
-    render(conn, data: Jason.encode!(%{data: result}))
+    render(conn, data: Jason.encode!(%{}))
   end
 
   def delete(conn, _) do

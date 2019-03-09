@@ -4,7 +4,7 @@ defmodule WebauthnPhoenixDemo.MixProject do
   def project do
     [
       app: :webauthn_phoenix_demo,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -43,7 +43,7 @@ defmodule WebauthnPhoenixDemo.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:web_authn_ex, "0.1.0"}
+      {:web_authn_ex, "0.1.1"}
     ]
   end
 
