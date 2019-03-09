@@ -22,9 +22,9 @@ defmodule WebauthnPhoenixDemo.Accounts do
   end
 
   def register_user(name, credential \\ %{}) do
-    user = %User{}
-      |> User.registration_changeset(%{name: name, credentials: %{0 => credential}})
-      |> Repo.insert!
+    %User{}
+    |> User.registration_changeset(%{name: name, credentials: %{0 => credential}})
+    |> Repo.insert!()
   end
 
   @doc """
@@ -170,7 +170,13 @@ defmodule WebauthnPhoenixDemo.Accounts do
     %Credential{}
     |> Credential.changeset(attrs)
     |> Repo.insert(
-      on_conflict: [set: [user_id: attrs.user_id, credential_name: attrs.credential_name, public_key: attrs.public_key]],
+      on_conflict: [
+        set: [
+          user_id: attrs.user_id,
+          credential_name: attrs.credential_name,
+          public_key: attrs.public_key
+        ]
+      ],
       conflict_target: :external_id
     )
   end

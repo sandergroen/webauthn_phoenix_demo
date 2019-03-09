@@ -16,8 +16,10 @@ defmodule WebauthnPhoenixDemoWeb.CredentialController do
     case authenticate(conn) do
       %Plug.Conn{halted: true} = conn ->
         conn
+
       conn ->
         current_user = conn.assigns.current_user
+
         credential_options =
           WebAuthnEx.credential_creation_options("web-server")
           |> Map.put(:user, %{
@@ -25,6 +27,7 @@ defmodule WebauthnPhoenixDemoWeb.CredentialController do
             name: current_user.name,
             displayName: current_user.name
           })
+
         conn = conn |> put_session(:challenge, credential_options.challenge)
 
         credential_options =
@@ -39,6 +42,7 @@ defmodule WebauthnPhoenixDemoWeb.CredentialController do
     case authenticate(conn) do
       %Plug.Conn{halted: true} = conn ->
         conn
+
       conn ->
         current_user = conn.assigns.current_user
         {:ok, client_json} = response["clientDataJSON"] |> Base.decode64()
@@ -46,32 +50,40 @@ defmodule WebauthnPhoenixDemoWeb.CredentialController do
 
         challenge = get_session(conn, :challenge)
 
-        result = WebAuthnEx.AuthAttestationResponse.new(
-          challenge,
-          WebauthnPhoenixDemoWeb.Endpoint.url(),
-          attestation_object,
-          client_json
-        )
-        conn = case result do
-          {:ok, att_resp} ->
-            {{:ECPoint, public_key}, {:namedCurve, :prime256v1}} = att_resp.credential.public_key
+        result =
+          WebAuthnEx.AuthAttestationResponse.new(
+            challenge,
+            WebauthnPhoenixDemoWeb.Endpoint.url(),
+            attestation_object,
+            client_json
+          )
 
-            credential = %{
-              user_id: current_user.id,
-              credential_name: credential_name,
-              external_id: Base.encode64(att_resp.credential.id),
-              public_key: Base.encode64(public_key)
-            }
-            WebauthnPhoenixDemo.Accounts.create_credential(credential)
-            conn
+        conn =
+          case result do
+            {:ok, att_resp} ->
+              {{:ECPoint, public_key}, {:namedCurve, :prime256v1}} =
+                att_resp.credential.public_key
+
+              credential = %{
+                user_id: current_user.id,
+                credential_name: credential_name,
+                external_id: Base.encode64(att_resp.credential.id),
+                public_key: Base.encode64(public_key)
+              }
+
+              WebauthnPhoenixDemo.Accounts.create_credential(credential)
+
+              conn
               |> assign(:current_user, current_user)
               |> put_session(:user_id, current_user.id)
               |> configure_session(renew: true)
               |> put_status(:ok)
-          {:error, reason} ->
-            conn
+
+            {:error, reason} ->
+              conn
               |> put_status(:forbidden)
           end
+
         render(conn, data: Jason.encode!(%{}))
     end
   end
@@ -80,8 +92,10 @@ defmodule WebauthnPhoenixDemoWeb.CredentialController do
     case authenticate(conn) do
       %Plug.Conn{halted: true} = conn ->
         conn
+
       conn ->
         credential = WebauthnPhoenixDemo.Accounts.get_credential!(credential_id)
+
         case WebauthnPhoenixDemo.Accounts.delete_credential(credential) do
           {:ok, _} ->
             conn

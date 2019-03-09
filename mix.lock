@@ -23,4 +23,5 @@
   "postgrex": {:hex, :postgrex, "0.14.0", "f3d6ffea1ca8a156e0633900a5338a3d17b00435227726baed8982718232b694", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.0", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
   "ranch": {:hex, :ranch, "1.6.2", "6db93c78f411ee033dbb18ba8234c5574883acb9a75af0fb90a9b82ea46afa00", [:rebar3], [], "hexpm"},
   "telemetry": {:hex, :telemetry, "0.2.0", "5b40caa3efe4deb30fb12d7cd8ed4f556f6d6bd15c374c2366772161311ce377", [:mix], [], "hexpm"},
+  "web_authn_ex": {:hex, :web_authn_ex, "0.1.0", "d45f7d83f0d22d61ba12a2e1642855ab793133a73558c7a53c9529042523c54e", [:mix], [{:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
 }
